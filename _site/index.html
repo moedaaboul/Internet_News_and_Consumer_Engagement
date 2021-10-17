@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Muhammad Daaboul" />
+
+<meta name="date" content="2021-10-17" />
+
+<title>Internet News and Consumer Engagement</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Internet News and Consumer Engagement</h1>
+<h4 class="author">Muhammad Daaboul</h4>
+<h4 class="date">17 October 2021</h4>
+
+</div>
+
+
+<p><a href="datacamp.com/workspacecompetition" target="_blank"><img src="banner.png" alt="banner" /></a></p>
+<p>Ready to put your coding skills to the test? Join us for our Workspace Competition.<br />
+For more information, visit <a href="https://datacamp.com/workspacecompetition">datacamp.com/workspacecompetition</a></p>
+<div id="context" class="section level3">
+<h3>Context</h3>
+<p>This dataset (<a href="https://www.kaggle.com/szymonjanowski/internet-articles-data-with-users-engagement">source</a>) consists of data about news articles collected from Sept. 3, 2019 until Nov. 4, 2019. Afterwards, it is enriched by Facebook engagement data, such as number of shares, comments and reactions. It was first created to predict the popularity of an article before it was published. However, there is a lot more you can analyze; take a look at some suggestions at the end of this template.</p>
+</div>
+<div id="load-packages" class="section level3">
+<h3>Load packages</h3>
+<pre class="r"><code>library(skimr)
+library(tidyverse)</code></pre>
+</div>
+<div id="load-your-data" class="section level3">
+<h3>Load your Data</h3>
+<pre class="r"><code>articles &lt;- readr::read_csv(&#39;data/news_articles.csv.gz&#39;)
+articles$source_id &lt;- as.factor(articles$source_id)
+articles$source_name &lt;- as.factor(articles$source_name)
+skim(articles) %&gt;% 
+  select(-(numeric.p0:numeric.p100)) %&gt;%
+  select(-(complete_rate))</code></pre>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">articles</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">10437</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">15</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">6</td>
+</tr>
+<tr class="odd">
+<td align="left">factor</td>
+<td align="left">2</td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">6</td>
+</tr>
+<tr class="odd">
+<td align="left">POSIXct</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">author</td>
+<td align="right">1020</td>
+<td align="right">2</td>
+<td align="right">184</td>
+<td align="right">0</td>
+<td align="right">2580</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">title</td>
+<td align="right">2</td>
+<td align="right">5</td>
+<td align="right">250</td>
+<td align="right">0</td>
+<td align="right">9810</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">description</td>
+<td align="right">24</td>
+<td align="right">3</td>
+<td align="right">266</td>
+<td align="right">0</td>
+<td align="right">9173</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">url</td>
+<td align="right">1</td>
+<td align="right">34</td>
+<td align="right">325</td>
+<td align="right">0</td>
+<td align="right">10433</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">url_to_image</td>
+<td align="right">656</td>
+<td align="right">31</td>
+<td align="right">261</td>
+<td align="right">0</td>
+<td align="right">8363</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">content</td>
+<td align="right">1292</td>
+<td align="right">26</td>
+<td align="right">276</td>
+<td align="right">0</td>
+<td align="right">8385</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="left">ordered</th>
+<th align="right">n_unique</th>
+<th align="left">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">source_id</td>
+<td align="right">0</td>
+<td align="left">FALSE</td>
+<td align="right">13</td>
+<td align="left">reu: 1252, bbc: 1242, the: 1232, abc: 1139</td>
+</tr>
+<tr class="even">
+<td align="left">source_name</td>
+<td align="right">0</td>
+<td align="left">FALSE</td>
+<td align="right">13</td>
+<td align="left">Reu: 1252, BBC: 1242, The: 1232, ABC: 1139</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">…1</td>
+<td align="right">0</td>
+<td align="right">5218.00</td>
+<td align="right">3013.05</td>
+<td align="left">▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td align="left">top_article</td>
+<td align="right">2</td>
+<td align="right">0.12</td>
+<td align="right">0.33</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">engagement_reaction_count</td>
+<td align="right">118</td>
+<td align="right">381.40</td>
+<td align="right">4433.34</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">engagement_comment_count</td>
+<td align="right">118</td>
+<td align="right">124.03</td>
+<td align="right">965.35</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">engagement_share_count</td>
+<td align="right">118</td>
+<td align="right">196.24</td>
+<td align="right">1020.68</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">engagement_comment_plugin_count</td>
+<td align="right">118</td>
+<td align="right">0.01</td>
+<td align="right">0.27</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: POSIXct</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">median</th>
+<th align="right">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">published_at</td>
+<td align="right">1</td>
+<td align="left">2019-09-03</td>
+<td align="left">2019-10-03 17:49:31</td>
+<td align="left">2019-09-12 18:32:38</td>
+<td align="right">9439</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="understand-your-data" class="section level3">
+<h3>Understand your data</h3>
+<table>
+<colgroup>
+<col width="29%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Variable.</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">source_id</td>
+<td align="left">publisher unique identifier</td>
+</tr>
+<tr class="even">
+<td align="left">source_name</td>
+<td align="left">human-readable publisher name</td>
+</tr>
+<tr class="odd">
+<td align="left">author</td>
+<td align="left">article author</td>
+</tr>
+<tr class="even">
+<td align="left">title</td>
+<td align="left">article headline</td>
+</tr>
+<tr class="odd">
+<td align="left">description</td>
+<td align="left">article short description</td>
+</tr>
+<tr class="even">
+<td align="left">url</td>
+<td align="left">article URL from publisher website</td>
+</tr>
+<tr class="odd">
+<td align="left">url_to_image</td>
+<td align="left">URL to main image associated with the article</td>
+</tr>
+<tr class="even">
+<td align="left">published_at</td>
+<td align="left">exact time and date of publishing the article</td>
+</tr>
+<tr class="odd">
+<td align="left">content</td>
+<td align="left">unformatted content of the article truncated to 260 characters</td>
+</tr>
+<tr class="even">
+<td align="left">top_article</td>
+<td align="left">value indicating if article was listed as a top article on publisher website</td>
+</tr>
+<tr class="odd">
+<td align="left">engagement_reaction_count</td>
+<td align="left">users reactions count for posts on Facebook involving article URL</td>
+</tr>
+<tr class="even">
+<td align="left">engagement_comment_count</td>
+<td align="left">users comments count for posts on Facebook involving article URL</td>
+</tr>
+<tr class="odd">
+<td align="left">engagement_share_count</td>
+<td align="left">users shares count for posts on Facebook involving article URL</td>
+</tr>
+<tr class="even">
+<td align="left">engagement_comment_plugin_count</td>
+<td align="left">Users comments count for Facebook comment plugin on article website</td>
+</tr>
+</tbody>
+</table>
+<p>Now you can start to explore this dataset with the chance to win incredible prices! Can’t think of where to start? Try your hand at these suggestions:</p>
+<ul>
+<li>Extract useful insights and visualize them in the most interesting way possible.</li>
+<li>Categorize the articles into different categories based on, for example, sentiment.</li>
+<li>Cluster the news articles, authors or publishers based on, for example, topic.</li>
+<li>Make a title generator based on data such as content, description, etc.</li>
+</ul>
+</div>
+<div id="judging-criteria" class="section level3">
+<h3>Judging Criteria</h3>
+<table>
+<thead>
+<tr class="header">
+<th align="left">CATEGORY</th>
+<th align="left">WEIGHTAGE</th>
+<th align="left">DETAILS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Analysis</strong></td>
+<td align="left">30%</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Results</strong></td>
+<td align="left">30%</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Creativity</strong></td>
+<td align="left">40%</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="understanding-our-dataset" class="section level2">
+<h2>Understanding our dataset</h2>
+<p>We observe that the <code>articles</code> dataset has 10,436 articles that have been published by 12 of the biggest names in the news industry. Our objective is to gain a deeper understanding of the relationship between these different news providers with particular emphasis on Reuters. We intend to cover the following four main areas in our analysis:</p>
+<ul>
+<li>Topic correlation</li>
+<li>Sentiment analysis</li>
+<li>Topic modeling for cluster analysis<br />
+</li>
+<li>Understand the main triggers behind popularity</li>
+</ul>
+<p>We present below an extract from the first row of this dataset to help build the readers intuition of the main elements that will be effective in our analysis.</p>
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+<div id="source-reuters" class="section level6">
+<h6><strong>Source</strong>: Reuters</h6>
+</div>
+<div id="author-reuters-editorial" class="section level6">
+<h6><strong>Author</strong>: Reuters Editorial</h6>
+</div>
+<div id="published-at-2019-09-03-162220" class="section level6">
+<h6><strong>Published at</strong>: 2019-09-03 16:22:20</h6>
+</div>
+<div id="url-to-image" class="section level6">
+<h6><strong>URL TO IMAGE</strong>:</h6>
+<p><a href="https://s4.reutersmedia.net/resources/r/?m=02&d=20190903&t=2&i=1425817142&w=1200&r=LYNXNPEF821HS" target="_blank"><img src="car.png" alt="car" /></a></p>
+</div>
+<div id="title-ntsb-says-autopilot-engaged-in-2018-california-tesla-crash" class="section level6">
+<h6><strong>Title</strong>: NTSB says Autopilot engaged in 2018 California Tesla crash</h6>
+</div>
+<div id="description-the-national-transportation-safety-board-said-tuesday-a-tesla-model-s-was-in-autopilot-mode-when-it-struck-a-fire-truck-in-culver-city-california-one-of-a-series-of-crashes-the-board-is-investigating-involving-teslas-driver-assistance-system." class="section level6">
+<h6><strong>Description</strong>: The National Transportation Safety Board said Tuesday a Tesla Model S was in Autopilot mode when it struck a fire truck in Culver City, California – one of a series of crashes the board is investigating involving Tesla’s driver assistance system.</h6>
+</div>
+<div id="content-washington-reuters---the-national-transportation-safety-board-said-tuesday-a-tesla-model-s-was-in-autopilot-mode-when-it-struck-a-fire-truck-in-culver-city-california-one-of-a-series-of-crashes-the-board-is-investigating-involving-teslas-driver-assistance-478-chars" class="section level6">
+<h6><strong>Content</strong>: WASHINGTON (Reuters) - The National Transportation Safety Board said Tuesday a Tesla Model S was in Autopilot mode when it struck a fire truck in Culver City, California one of a series of crashes the board is investigating involving Tesla’s driver assistance… [+478 chars]</h6>
+</div>
+<div id="reaction-0-times" class="section level6">
+<h6><strong>Reaction</strong>: 0 times</h6>
+<p><br> <img src="facebook-reactions.png" alt="facebook-reactions" /> <br></p>
+</div>
+<div id="comments-0-times" class="section level6">
+<h6><strong>Comments</strong>: 0 times</h6>
+</div>
+<div id="shares-2528-times" class="section level6">
+<h6><strong>Shares</strong>: 2528 times</h6>
+</section>
+<p><br></p>
+<p>This article however was not recorded to have had any reactions or comments, but was shared 2528 times ! Other information that would also be included but not found for article under id no. 1 would be:</p>
+<ul>
+<li>engagement_reaction_count</li>
+<li>engagement_comment_count</li>
+<li>engagement_comment_plugin_count</li>
+</ul>
+<p>Now that we have a feel of how the contents we can also view these using the <code>str()</code> function as shown below to view the first article’s content:</p>
+<pre class="r"><code>str(articles[1,])</code></pre>
+<pre><code>## tibble [1 x 15] (S3: tbl_df/tbl/data.frame)
+##  $ ...1                           : num 0
+##  $ source_id                      : Factor w/ 13 levels &quot;1&quot;,&quot;abc-news&quot;,..: 10
+##  $ source_name                    : Factor w/ 13 levels &quot;460.0&quot;,&quot;ABC News&quot;,..: 10
+##  $ author                         : chr &quot;Reuters Editorial&quot;
+##  $ title                          : chr &quot;NTSB says Autopilot engaged in 2018 California Tesla crash&quot;
+##  $ description                    : chr &quot;The National Transportation Safety Board said Tuesday a Tesla Model S was in Autopilot mode when it struck a fi&quot;| __truncated__
+##  $ url                            : chr &quot;https://www.reuters.com/article/us-tesla-crash-idUSKCN1VO22E&quot;
+##  $ url_to_image                   : chr &quot;https://s4.reutersmedia.net/resources/r/?m=02&amp;d=20190903&amp;t=2&amp;i=1425817142&amp;w=1200&amp;r=LYNXNPEF821HS&quot;
+##  $ published_at                   : POSIXct[1:1], format: &quot;2019-09-03 16:22:20&quot;
+##  $ content                        : chr &quot;WASHINGTON (Reuters) - The National Transportation Safety Board said Tuesday a Tesla Model S was in Autopilot m&quot;| __truncated__
+##  $ top_article                    : num 0
+##  $ engagement_reaction_count      : num 0
+##  $ engagement_comment_count       : num 0
+##  $ engagement_share_count         : num 2528
+##  $ engagement_comment_plugin_count: num 0</code></pre>
+<p>We will also use the <code>source_name</code> column going forward rather than the <code>source_id</code> column. We have verified below that there are no differences between these two columns, but have chosen the former simply because it looks a lot neater and is more suitable for use for our graphical representations going forward.</p>
+<pre class="r"><code>articles %&gt;%
+  count(source_id, source_name)</code></pre>
+<pre><code>## # A tibble: 13 x 3
+##    source_id               source_name                 n
+##    &lt;fct&gt;                   &lt;fct&gt;                   &lt;int&gt;
+##  1 1                       460.0                       1
+##  2 abc-news                ABC News                 1139
+##  3 al-jazeera-english      Al Jazeera English        499
+##  4 bbc-news                BBC News                 1242
+##  5 business-insider        Business Insider         1048
+##  6 cbs-news                CBS News                  952
+##  7 cnn                     CNN                      1132
+##  8 espn                    ESPN                       82
+##  9 newsweek                Newsweek                  539
+## 10 reuters                 Reuters                  1252
+## 11 the-irish-times         The Irish Times          1232
+## 12 the-new-york-times      The New York Times        986
+## 13 the-wall-street-journal The Wall Street Journal   333</code></pre>
+<p>We start by summarizing key the main article engagement metrics gathered. It would be misleading to compare the total number of reactions, comments, or shares irrespective of the number of articles related to each news provider. We will therefore present the <code>mean</code> which will allow us to form a reasonable comparison between users different behaviours towards the different news source providers.</p>
+<pre class="r"><code>articles %&gt;%
+ filter(!source_name == &quot;460.0&quot;) %&gt;%
+ group_by(source_name) %&gt;%
+ summarise(reaction = mean(engagement_reaction_count),
+            comment = mean(engagement_comment_count),
+              share = mean(engagement_share_count)) %&gt;%
+ gather(key = &quot;comment_type&quot;, value = &quot;count&quot;, -source_name, na.rm = TRUE) %&gt;%
+ ggplot(aes(fct_reorder(source_name, count), count, fill=comment_type)) + 
+ geom_col(position = &quot;dodge&quot;) + 
+ coord_flip() +
+ ylab(&quot;&quot;) + 
+ xlab(&quot;&quot;) + 
+ guides(fill=guide_legend(title=&quot;Reaction Types&quot;))</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-4-1.png" alt="Figure 1 - Average number of reaction types per article" width="768" />
+<p class="caption">
+Figure 1 - Average number of reaction types per article
+</p>
+</div>
+<p>Some really interesting observations to take here. Reuters users are much more likely to share an article, but otherwise there is a defined pattern where a <code>reaction</code> is the common engagement type, followed by <code>comments</code> and then <code>shares</code>. Additionally, CNN appears to be the most popular amongst the others.</p>
+</div>
+<div id="data-wrangling" class="section level5">
+<h5><strong>Data Wrangling</strong></h5>
+<p>We will start by doing some data cleansing and will remove the “460.0” as the results inferred here would be statistically invalid due to having only one occurrence.</p>
+<pre class="r"><code>library(janitor)
+
+articles &lt;- articles %&gt;%
+            clean_names() %&gt;%
+            rename(id = x1) %&gt;%
+            mutate(id = row_number()) %&gt;%
+            filter(source_name != &quot;460.0&quot;)</code></pre>
+<p>Now we’ll create a unique article id by newspaper agency.</p>
+<pre class="r"><code>clean_articles &lt;- articles %&gt;%
+                 group_by(source_name) %&gt;%
+                 mutate(reference = row_number()) %&gt;%
+                 ungroup() %&gt;%
+                 mutate(article_id = paste0(source_name, &quot;_&quot;, reference)) %&gt;%
+                 select(-reference)
+
+str(clean_articles[1,])</code></pre>
+<pre><code>## tibble [1 x 16] (S3: tbl_df/tbl/data.frame)
+##  $ id                             : int 1
+##  $ source_id                      : Factor w/ 13 levels &quot;1&quot;,&quot;abc-news&quot;,..: 10
+##  $ source_name                    : Factor w/ 13 levels &quot;460.0&quot;,&quot;ABC News&quot;,..: 10
+##  $ author                         : chr &quot;Reuters Editorial&quot;
+##  $ title                          : chr &quot;NTSB says Autopilot engaged in 2018 California Tesla crash&quot;
+##  $ description                    : chr &quot;The National Transportation Safety Board said Tuesday a Tesla Model S was in Autopilot mode when it struck a fi&quot;| __truncated__
+##  $ url                            : chr &quot;https://www.reuters.com/article/us-tesla-crash-idUSKCN1VO22E&quot;
+##  $ url_to_image                   : chr &quot;https://s4.reutersmedia.net/resources/r/?m=02&amp;d=20190903&amp;t=2&amp;i=1425817142&amp;w=1200&amp;r=LYNXNPEF821HS&quot;
+##  $ published_at                   : POSIXct[1:1], format: &quot;2019-09-03 16:22:20&quot;
+##  $ content                        : chr &quot;WASHINGTON (Reuters) - The National Transportation Safety Board said Tuesday a Tesla Model S was in Autopilot m&quot;| __truncated__
+##  $ top_article                    : num 0
+##  $ engagement_reaction_count      : num 0
+##  $ engagement_comment_count       : num 0
+##  $ engagement_share_count         : num 2528
+##  $ engagement_comment_plugin_count: num 0
+##  $ article_id                     : chr &quot;Reuters_1&quot;</code></pre>
+</div>
+<div id="tokenization" class="section level5">
+<h5><strong>Tokenization</strong></h5>
+<p>Many of the principles used below have been utilized by the amazing <code>tidytext</code> package which has been authored by both <code>Silge and Robinson</code>. We will now arrange the dataset into a one-token-per-row format using the <code>unnest_tokens()</code> verb.</p>
+<pre class="r"><code>library(tidytext)
+
+tidy_articles &lt;- clean_articles %&gt;%
+                 unnest_tokens(word, description) </code></pre>
+<p>We will then anti-join stop words, which are common language fillers such as <code>the</code> and <code>a</code> (Silge and Robinson) so our text analysis is based on meaningful words.</p>
+<pre class="r"><code>data(stop_words)
+
+tidy_articles &lt;- tidy_articles %&gt;%
+                  anti_join(stop_words)
+
+tidy_articles %&gt;%
+  count(word, sort = TRUE)</code></pre>
+<pre><code>## # A tibble: 21,960 x 2
+##    word          n
+##    &lt;chr&gt;     &lt;int&gt;
+##  1 news       1614
+##  2 world       857
+##  3 president   841
+##  4 national    658
+##  5 trump       614
+##  6 top         596
+##  7 u.s         593
+##  8 video       509
+##  9 online      480
+## 10 coverage    449
+## # ... with 21,950 more rows</code></pre>
+</div>
+<div id="text-correlation-analysis" class="section level5">
+<h5><strong>Text correlation analysis</strong></h5>
+<p>Now we create <code>prop</code>, which summarizes the proportion each word has has been mentioned by each respective News provider.</p>
+<pre class="r"><code>prop &lt;- tidy_articles %&gt;%
+        count(word, source_name, sort = TRUE) %&gt;%
+        group_by(source_name) %&gt;%
+        mutate(proportion = n / sum(n)) %&gt;%
+        ungroup() %&gt;%
+        select(-n)</code></pre>
+<p>We then filter our newly created dataset for <code>Reuters</code> and use that to depict a visual representation of the words that more likely to mentioned to be mentioned by <code>Reuters</code> (i.e. have a higher proportion) vs. words that are less likely to be mentioned (i.e. having a lower proportion). A lower proportion will indicate that there is a higher possibility of occurrence by the other News providers.</p>
+<pre class="r"><code>prop_reuters &lt;- prop %&gt;%
+                filter(source_name == &quot;Reuters&quot;) %&gt;%
+                select(word, proportion) %&gt;%
+                rename(Reuters = proportion)</code></pre>
+<p>Before we visualise our results, we’ll need to <code>left_join()</code> the original proportions to allow for a comparison as the <code>prop_reuters</code> dataset doesn’t include these.</p>
+<pre class="r"><code>tidy_prop &lt;- prop %&gt;%
+  left_join(prop_reuters, by = c(&quot;word&quot;))</code></pre>
+<p>Now we are able to visualise our results…</p>
+<pre class="r"><code>library(scales)
+
+ggplot(tidy_prop, aes(x = proportion, y = `Reuters`, 
+                      color = abs(`Reuters` - proportion))) +
+  geom_abline(color = &quot;gray40&quot;, lty = 2) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  scale_color_gradient(limits = c(0, 0.001), 
+                       low = &quot;darkslategray4&quot;, high = &quot;gray75&quot;) +
+  facet_wrap(~source_name, ncol = 3) +
+  theme(legend.position=&quot;none&quot;) +
+  labs(y = &quot;Reuters proportions&quot;, x = NULL)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-12-1.png" alt="Figure 2 - Comparing word freqencies of Reuters against other News services" width="768" />
+<p class="caption">
+Figure 2 - Comparing word freqencies of Reuters against other News services
+</p>
+</div>
+<p><em>Interesting!</em> We can tell straight from the graphs that ESPN has the lowest correlation against Reuters. This was expected, since <code>ESPN</code>’s coverage is focused on sports-related content unlike the other source providers which cover broader topic areas.</p>
+<p>We will now quantify this correlation against <code>ESPN</code> to substantiate our results and translate these into numbers using <code>Pearson's correlation</code> by calculating statistic through <code>cor.test</code>.</p>
+<pre class="r"><code>cor.test(data = tidy_prop[tidy_prop$source_name == &quot;ESPN&quot;,], ~ proportion + `Reuters`)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  proportion and Reuters
+## t = 4.1785, df = 452, p-value = 3.524e-05
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.1026415 0.2799119
+## sample estimates:
+##       cor 
+## 0.1928498</code></pre>
+<p>Now, we’ll write a function to pull <code>Reuters</code> correlations against all other sources and test again for <code>ESPN</code>.</p>
+<pre class="r"><code>correlation_function &lt;- function(x) {
+cor.test(data = tidy_prop[tidy_prop$source_name == x,], ~ proportion + `Reuters`)
+}
+
+source_list &lt;- as.vector(unique(tidy_prop$source_name))
+
+correlation_list &lt;- map(source_list, correlation_function) %&gt;%
+                    setNames(source_list)
+
+correlation_list$ESPN</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  proportion and Reuters
+## t = 4.1785, df = 452, p-value = 3.524e-05
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.1026415 0.2799119
+## sample estimates:
+##       cor 
+## 0.1928498</code></pre>
+<p><em>Awesome!</em> We derived the exact same correlation but using a function. We can now plot <code>Reuters</code> correlations against the other News source providers.</p>
+<pre class="r"><code>library(reshape2)
+library(forcats)
+
+correlation_df &lt;- melt(lapply(correlation_list, `[`, c(&#39;estimate&#39;, &#39;p.value&#39;)))
+
+tidy_correlations &lt;- correlation_df %&gt;%
+                     filter(L2 == &quot;estimate&quot;, L1 != &quot;Reuters&quot;) %&gt;%
+                     rename(source_name = L1) %&gt;%
+                     select(-L2) %&gt;%
+                     ggplot(aes(fct_reorder(source_name, value),value)) +
+                     geom_col() + 
+                     coord_flip() + 
+                     xlab(NULL) +
+                     ylab(&quot;&quot;)
+
+tidy_correlations</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-15-1.png" alt="Figure 3 - Reuters text correlation with other News sources" width="672" />
+<p class="caption">
+Figure 3 - Reuters text correlation with other News sources
+</p>
+</div>
+<p>Interesting to see <code>ABC</code> news with even lower correlation than <code>ESPN</code>’s. A closer look at the plot above shows the words <em>world</em>, <em>news</em>, <em>video</em>, <em>coverage</em> as clear outliers causing ABC News to have this awfully low correlation even though <code>ESPN</code>’s content is much more diverse.</p>
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+<p><strong>Note</strong>: Our analysis results would have been much different had we used the <code>content</code> column in the description dataset. However, because results have been truncated to 260 characters we believe it would be very difficult to infer meaningful relationships through missing content, and therefore have based our analysis on the <code>description</code> column which provides an excellent summary of the article events, and is a lot more detailed than the <code>title</code> column.</p>
+</section>
+<p><br></p>
+</div>
+<div id="topic-modeling" class="section level3">
+<h3><strong>Topic modeling</strong></h3>
+<p>Now we move on to <code>topic modeling</code>, where our goal is to show you the various topic clusters within the <code>articles</code> dataset by article. We start by arranging our dataset into a tidy format.</p>
+<pre class="r"><code>wordsbyArticle &lt;- tidy_articles %&gt;%
+                   count(article_id, word, sort = TRUE) 
+
+wordsbyArticle</code></pre>
+<pre><code>## # A tibble: 142,737 x 3
+##    article_id           word       n
+##    &lt;chr&gt;                &lt;chr&gt;  &lt;int&gt;
+##  1 Business Insider_688 iphone     6
+##  2 Business Insider_461 iphone     5
+##  3 Business Insider_477 iphone     5
+##  4 Business Insider_486 iphone     5
+##  5 Business Insider_561 11         5
+##  6 Business Insider_561 iphone     5
+##  7 Business Insider_640 litter     5
+##  8 Business Insider_805 coca       5
+##  9 Business Insider_805 cola       5
+## 10 CNN_621              iphone     5
+## # ... with 142,727 more rows</code></pre>
+<p>We will now transform this into a dfm object using the <code>cast_dfm()</code> function from using the <code>tidytext</code>package (Silge and Robinson). A dfm-class object is a sparse matrix representation of the counts of features by document, and is needed to apply the <code>stm</code> function, which is a method of unsupervised classification widely accepted as suitable topic modeling method.</p>
+<p>Due to the excruciating amount of time needed to knit the document with the <code>stm</code>, we have opted to save the file into our workspace to make the knitting process much smoother and quicker ! We have also saved the seed number for reproducibility.</p>
+<pre class="r"><code>library(tm)
+library(quanteda)
+library(stm)
+
+articles_dfm &lt;- wordsbyArticle %&gt;%
+  cast_dfm(article_id, word, n)
+
+set.seed(2021)
+articles_lda &lt;- stm(articles_dfm, K=6, init.type = &quot;LDA&quot;)
+saveRDS(articles_lda, file = &quot;articles_lda.RDS&quot;)
+rownames_dfm &lt;- rownames(articles_dfm)
+saveRDS(rownames_dfm, file = &quot;rownames_dfm.RDS&quot;)</code></pre>
+<pre class="r"><code>articles_lda &lt;- readRDS(file = &quot;articles_lda.RDS&quot;)
+rownames_dfm  &lt;- readRDS(file = &quot;rownames_dfm.RDS&quot;)</code></pre>
+<p>Now, that we’ve successfully run the topic models, we will group these into different categories. To avoid repeating the graph twice, we will label these prior to visualising the top 10 words from each of the 6 topics.</p>
+<pre class="r"><code>article_topics &lt;- tidy(articles_lda, matrix = &quot;beta&quot;)
+
+topic_theme &lt;- article_topics %&gt;%
+  group_by(topic) %&gt;%
+  slice_max(beta, n = 10) %&gt;%
+  ungroup() %&gt;%
+  arrange(topic, -beta)
+
+topic_categories &lt;- tibble(topic = 1:6, topic_category = c(&quot;Exclusive content&quot;, &quot;Economy and Trade&quot;, &quot;Climate change&quot;, &quot;US coverage&quot;, &quot;International coverage&quot;, &quot;UK coverage&quot;))
+
+topic_theme %&gt;%
+  inner_join(topic_categories, by = c(&quot;topic&quot;)) %&gt;%
+  ggplot(aes(fct_reorder(term, beta), beta, fill = factor(topic_category))) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~topic_category, scales = &quot;free&quot;) + 
+  coord_flip() +
+  ylab(&quot;&quot;) +
+  xlab(&quot;&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-19-1.png" alt="Figure 4 - Terms that are most common within each of the six topics" width="864" />
+<p class="caption">
+Figure 4 - Terms that are most common within each of the six topics
+</p>
+</div>
+<p>Even though there is some judgement involved surrounding the nomenclature of these topic categories, we can clearly distinguish certain topic areas such as <em>Economy and Trade</em>, <em>Climate change</em>, <em>US coverage</em>, and <em>UK coverage</em>. Other areas such as <em>International coverage</em> are more likely disputed but most probably accepted to fit a range of other topics. This opens the possibility to perform topic modelling using a k &gt; 6. Also, <em>Exclusive</em> sounds a bit vague and not well defined but we believe it is driven by the <code>description</code> column in the dataset being limited to certain characters. However, for our purposes we will keep this to examine later on whether exclusive content has a significant impact on popularity.</p>
+<p>Now we’ll turn our focus to <code>gamma</code>, which moves away slightly from a word focus and is an allocation of various topics within a single document (Silge and Robinson). So in our case, this would be the topics allocation which each article from our articles dataset (i.e. allocation by <code>article_id</code>)</p>
+<pre class="r"><code>articles_gamma &lt;- tidy(articles_lda, matrix = &quot;gamma&quot;, document_names = rownames_dfm)
+
+articles_gamma_sliced &lt;- articles_gamma %&gt;%
+  group_by(document) %&gt;%
+  slice_max(order_by = gamma, n=1) %&gt;%
+  ungroup() %&gt;%
+  arrange(-gamma) %&gt;%
+  inner_join(topic_categories) %&gt;%
+  rename(article_id = document)
+  
+articles_gamma_sliced %&gt;%  
+separate(article_id, c(&#39;source_name&#39;, &#39;article_number&#39;), sep=&quot;_&quot;) %&gt;%
+count(source_name, topic, topic_category) %&gt;%
+ggplot(aes(source_name, n, fill = factor(topic_category))) + 
+geom_col(position = &quot;fill&quot;) + 
+coord_flip() + 
+guides(fill=guide_legend(title=&quot;Topic categories&quot;)) +
+ylab(&quot;&quot;) +
+xlab(&quot;&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-20-1.png" alt="Figure 5 - Weighting of our clustered topic categories amongst the various News providers" width="672" />
+<p class="caption">
+Figure 5 - Weighting of our clustered topic categories amongst the various News providers
+</p>
+</div>
+<p>The results above are sensical. <code>ESPN</code>’s UK coverage is a result from the its UK premiere league coverage. <code>BBC</code> obviously has higher UK coverage than its counterparts. <code>WSJ</code> and the <code>Business Insider</code> are mostly focused on Economy and Trade as would be expected. <code>CNN</code> understandably has a much higher US coverage than any of its counterparts.</p>
+</div>
+<div id="sentiment-analysis" class="section level3">
+<h3>Sentiment Analysis</h3>
+<p>Now we’ll perform sentiment analysis using the <code>bing</code> dataset (Silge and Robinson). This lexicon provides a two-category sentiment which will be useful for our analysis. Using the <code>tidytext</code> package, we can obtain this lexicon by calling <code>get_sentiments()</code></p>
+<pre><code>## # A tibble: 6,786 x 2
+##    word        sentiment
+##    &lt;chr&gt;       &lt;chr&gt;    
+##  1 2-faces     negative 
+##  2 abnormal    negative 
+##  3 abolish     negative 
+##  4 abominable  negative 
+##  5 abominably  negative 
+##  6 abominate   negative 
+##  7 abomination negative 
+##  8 abort       negative 
+##  9 aborted     negative 
+## 10 aborts      negative 
+## # ... with 6,776 more rows</code></pre>
+<p>Here, we’ll <code>inner_join</code> the <code>bing</code> dataset to our tidied set, thereby eliminating any mismatch in words between these two datsets. We will also assign a <code>sentiment</code> score based on the frequency of either positive or negative words within each <code>article_id</code></p>
+<pre class="r"><code>sentiment_bing &lt;- tidy_articles %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+  count(article_id, source_name, sentiment) %&gt;%
+  spread(sentiment, n, fill = 0) %&gt;%
+  mutate(sentiment = positive - negative)
+
+sentiment_bing</code></pre>
+<pre><code>## # A tibble: 7,515 x 5
+##    article_id    source_name negative positive sentiment
+##    &lt;chr&gt;         &lt;fct&gt;          &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+##  1 ABC News_1    ABC News           4        1        -3
+##  2 ABC News_10   ABC News           1        1         0
+##  3 ABC News_1001 ABC News           2        2         0
+##  4 ABC News_1002 ABC News           1        1         0
+##  5 ABC News_1004 ABC News           0        2         2
+##  6 ABC News_1005 ABC News           2        0        -2
+##  7 ABC News_1006 ABC News           1        0        -1
+##  8 ABC News_1007 ABC News           0        1         1
+##  9 ABC News_1008 ABC News           1        1         0
+## 10 ABC News_1009 ABC News           1        1         0
+## # ... with 7,505 more rows</code></pre>
+</div>
+<div id="wordcloud" class="section level3">
+<h3>Wordcloud</h3>
+<p>Now that we have a tidied dataset, we can plot a wordcloud with the <code>reshape2</code> and <code>wordcloud</code> packages. We can try to understand the main sentiment drivers (either positive or negative) within the whole dateset.</p>
+<pre class="r"><code>library(reshape2)
+library(wordcloud)
+
+tidy_articles %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+  count(word, sentiment, sort = TRUE) %&gt;%
+  acast(word ~ sentiment, value.var = &quot;n&quot;, fill = 0) %&gt;%
+  comparison.cloud(colors = c(&quot;gray20&quot;,&quot;gray80&quot;), max.words = 75)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-23-1.png" alt="Figure 6 - Most common positive and negative words in all articles" width="768" />
+<p class="caption">
+Figure 6 - Most common positive and negative words in all articles
+</p>
+</div>
+<p>Some of these negative words are distressing, so we can filter our dataset to <code>ESPN</code> to find more lighthearted indicators of either negative or positive sentiment.</p>
+<pre class="r"><code>tidy_articles %&gt;%
+  inner_join(get_sentiments(&quot;bing&quot;)) %&gt;%
+  count(word, sentiment, source_name, sort = TRUE) %&gt;%
+  filter(source_name == &quot;ESPN&quot;) %&gt;%
+  acast(word ~ sentiment, value.var = &quot;n&quot;, fill = 0) %&gt;%
+  comparison.cloud(colors = c(&quot;gray20&quot;,&quot;gray80&quot;), max.words = 120)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-24-1.png" alt="Figure 7 - Most common positive and negative words in ESPN articles" width="768" />
+<p class="caption">
+Figure 7 - Most common positive and negative words in ESPN articles
+</p>
+</div>
+<p>This is more like it, and why people love watching sports!</p>
+</div>
+<div id="term-frequency" class="section level3">
+<h3>Term Frequency</h3>
+<p>We can also obtain a deeper understanding of the topic areas covered by each News agency by calculating term frequency, which is the number of times our words apprear within a document. We will use this concept to depict the top 15 words most commonly used by each News provider. This can be performed using the <code>bind_tf_idf</code> verb.</p>
+<pre class="r"><code>article_words &lt;-   tidy_articles %&gt;%
+                   count(source_name, word, sort = TRUE)
+
+
+article_words &lt;- article_words %&gt;%
+                 bind_tf_idf(word, source_name, n) %&gt;%
+                 arrange(-tf_idf)
+                 
+article_words %&gt;%
+  group_by(source_name) %&gt;%
+  slice_max(tf_idf, n = 15) %&gt;%
+  ungroup %&gt;%
+  ggplot(aes(word, tf_idf, fill = source_name)) +
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~source_name, ncol = 3, scales = &quot;free&quot;) + 
+  labs(x = NULL, y = &quot;&quot;) + 
+  coord_flip()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-25-1.png" alt="Figure 8 - Highest tf-idf words amongst the dataset's news sources" width="960" />
+<p class="caption">
+Figure 8 - Highest tf-idf words amongst the dataset’s news sources
+</p>
+</div>
+<p>Interesting to see 48 which is the 48 Hours show on CBS, the source name and their websites is also obvious and expected. There is more football coverage under BBC news by the words <em>trafford</em> and <em>tottenham</em>, but probably needed a higher k to arrive at a sports cluster. However, the main limitation behind this could possibly be the diverse topics covered by ESPN such as NFL and basketball vs. mainly Olympics and football coverage by BBC.</p>
+</div>
+<div id="n-grams-and-correlation" class="section level3">
+<h3>N-grams and correlation</h3>
+<p>Our focus so far has been on <em>unigrams</em>, however we could certainly derive a lot more from <em>bigrams</em>. Bigrams allow us to visualise the connectivity between these words using the <code>igraph</code> package.</p>
+<pre class="r"><code>article_bigrams &lt;- clean_articles %&gt;%
+                    unnest_tokens(bigrams, description, token = &quot;ngrams&quot;, n = 2)</code></pre>
+<p>Now we have unnested the <code>description</code> columns by bigrams, we can count the frequency of unique combinations.</p>
+<pre class="r"><code>data(stop_words)
+
+article_bigrams &lt;- article_bigrams %&gt;%
+                    count(bigrams, sort = TRUE)</code></pre>
+<p>We will now filter out any stopword occurrences after splitting the <code>bigrams</code> into two columns for each of the two words.</p>
+<pre class="r"><code>bigrams_split &lt;-article_bigrams %&gt;%
+  separate(bigrams, c(&quot;word1&quot;,&quot;word2&quot;), sep= &quot; &quot;) %&gt;%
+  filter(!word1 %in% stop_words$word) %&gt;%
+  filter(!word2 %in% stop_words$word) %&gt;%
+  arrange(desc(n))</code></pre>
+<p>Using the <code>igraph</code> package we can now visualise connectivity between words that have occurred more than 15 times. We will also increase the thickness of the links depending on the frequency of these bigrams by assigning <code>edge_with = n</code> within <code>geom_edge_link()</code>. <em>Really cool stuff!</em></p>
+<pre class="r"><code>library(ggraph)
+library(igraph)
+library(grid)
+
+bigram_igraph &lt;- bigrams_split %&gt;%
+ filter(n &gt; 15) %&gt;%
+ filter(!is.na(word1)) %&gt;%
+ filter(!is.na(word2)) %&gt;%
+ graph_from_data_frame() 
+
+set.seed(1234)
+
+ggraph(bigram_igraph, layout = &quot;fr&quot;) + 
+geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = &quot;cyan4&quot;, end_cap = circle(0.07, &#39;inches&#39;)) +
+geom_node_point(color = &quot;lightblue&quot;, size = 5) + 
+geom_node_text(aes(label = name), vjust = 1, hjust = 1) + 
+theme_void()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-29-1.png" alt="Figure 9 - Most recurring bigrams in all articles that have occurred at least 15 times" width="1152" />
+<p class="caption">
+Figure 9 - Most recurring bigrams in all articles that have occurred at least 15 times
+</p>
+</div>
+<p>We can clearly tell a story now. For example, one particular theme surrounding US coverage was on former President Donald Trump and his administration whilst Vice President <em>(now President)</em> Joe Biden was the runner-up.</p>
+</div>
+<div id="putting-the-final-pieces-together" class="section level3">
+<h3>Putting the final pieces together</h3>
+<p>We will now combine various pieces from our final products above to form a meaningful relationship through a linear regression model. Our aim to explain <em>popularity</em> depending on the <strong>source name</strong>, <strong>sentiment</strong>, <strong>topic category</strong> and <strong>image status</strong>, which we plan to add further below.</p>
+<div id="popularity-by-source-name" class="section level4">
+<h4>Popularity by source name</h4>
+<p>We finally attempt to visualise popularity by the various sources.</p>
+<pre class="r"><code>clean_articles %&gt;%
+mutate(popularity = engagement_reaction_count + engagement_comment_count + engagement_share_count + engagement_comment_plugin_count) %&gt;%
+group_by(source_name) %&gt;%
+summarise(popularity = mean(popularity, na.rm =TRUE)) %&gt;%
+ggplot(aes(fct_reorder(source_name, popularity), popularity, fill = source_name)) +
+geom_col(show.legend = FALSE) +
+coord_flip() +
+ylab(&quot;&quot;) +
+xlab(&quot;&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-30-1.png" alt="Figure 10 - Average popularity amongst the different news service providers" width="768" />
+<p class="caption">
+Figure 10 - Average popularity amongst the different news service providers
+</p>
+</div>
+<p>This clearly shows that the New York Times and CNN are clear high flyers in terms of popularity, with both the Irish Times and ESPN way below average. This will help us regroup the middle categories as one as they all fall within range in terms of popularity (i.e. <em>CBS News</em>, <em>Al Jazeera English</em>, <em>Newsweek</em>, <em>Business Insider</em>, <em>BBC News</em>, <em>ABC News</em>, <em>The Wall Street Journal</em>, and <em>Reuters</em>)</p>
+<div id="sentiment" class="section level5">
+<h5>Sentiment</h5>
+<p>We will also have a look at sentiment across the board</p>
+<pre class="r"><code>library(lubridate)
+
+clean_articles %&gt;%
+left_join(
+           select(sentiment_bing, c(&quot;article_id&quot;, &quot;sentiment&quot;)
+                                                              )) %&gt;%
+ggplot(aes(sentiment, fill = source_name)) +
+geom_density(show.legend = FALSE) + 
+facet_wrap(~source_name) +
+xlab(&quot;&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="index_files/figure-html/unnamed-chunk-31-1.png" alt="Figure 11 - Sentiment score distribution by News provider" width="672" />
+<p class="caption">
+Figure 11 - Sentiment score distribution by News provider
+</p>
+</div>
+<p>Overall sentiment looks balanced. We will take an easy shortcut by assuming sentiment is fairly similar for now. Now, it’s time for data wrangling before we apply our lm model.</p>
+<pre class="r"><code>model_set &lt;- clean_articles %&gt;%
+mutate(popularity = engagement_reaction_count + engagement_comment_count + engagement_share_count + engagement_comment_plugin_count) %&gt;%
+left_join(
+           select(sentiment_bing, c(&quot;article_id&quot;, &quot;sentiment&quot;)
+                                                              )) %&gt;%
+mutate(source_name = case_when(
+    source_name == &quot;CNN&quot;                  ~ &quot;CNN&quot;,
+    source_name == &quot;The Irish Times&quot;      ~ &quot;The Irish Times&quot;,
+    source_name == &quot;The New York Times&quot;   ~ &quot;The New York Times&quot;,
+    source_name == &quot;ESPN&quot;                 ~ &quot;ESPN&quot;,
+    TRUE                                  ~ &quot;Other&quot;)) %&gt;%
+  mutate(sentiment_cat = case_when(
+    sentiment &gt; 0                  ~ &quot;positive&quot;,
+    sentiment &lt; 0                  ~ &quot;negative&quot;,
+    TRUE                           ~ &quot;neutral&quot;)) %&gt;%
+mutate(image_status = if_else(is.na(url_to_image), 0, 1)) %&gt;%
+left_join(articles_gamma_sliced)
+
+model_lm &lt;- lm(formula = popularity ~ sentiment_cat + topic_category + source_name + image_status, data = model_set)
+        
+summary(model_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = popularity ~ sentiment_cat + topic_category + source_name + 
+##     image_status, data = model_set)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -2211   -742   -475    -72 432644 
+## 
+## Coefficients:
+##                                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                           1074.09     346.25   3.102  0.00193 ** 
+## sentiment_catneutral                    40.51     138.39   0.293  0.76974    
+## sentiment_catpositive                 -165.15     161.50  -1.023  0.30653    
+## topic_categoryEconomy and Trade       -138.35     202.16  -0.684  0.49376    
+## topic_categoryExclusive content       -322.35     238.58  -1.351  0.17669    
+## topic_categoryInternational coverage   100.59     203.45   0.494  0.62100    
+## topic_categoryUK coverage              -89.16     210.20  -0.424  0.67145    
+## topic_categoryUS coverage              600.01     208.24   2.881  0.00397 ** 
+## source_nameESPN                      -1494.24     692.71  -2.157  0.03102 *  
+## source_nameOther                      -957.37     195.31  -4.902 9.65e-07 ***
+## source_nameThe Irish Times           -1505.12     257.40  -5.847 5.14e-09 ***
+## source_nameThe New York Times         -380.09     262.83  -1.446  0.14817    
+## image_status                           496.51     254.12   1.954  0.05074 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6027 on 10306 degrees of freedom
+##   (117 observations deleted due to missingness)
+## Multiple R-squared:  0.008083,   Adjusted R-squared:  0.006928 
+## F-statistic: 6.999 on 12 and 10306 DF,  p-value: 8.14e-13</code></pre>
+<p>The New York Times didn’t turn to very significant, so we will regroup with other. We will also categorise content as being either US coverage or other</p>
+<pre class="r"><code>final_model_set &lt;- clean_articles %&gt;%
+mutate(popularity = engagement_reaction_count + engagement_comment_count + engagement_share_count + engagement_comment_plugin_count) %&gt;%
+left_join(
+           select(sentiment_bing, c(&quot;article_id&quot;, &quot;sentiment&quot;)
+                                                              )) %&gt;%
+mutate(source_name = case_when(
+    source_name == &quot;CNN&quot;                  ~ &quot;CNN&quot;,
+    source_name == &quot;The Irish Times&quot;      ~ &quot;The Irish Times&quot;,
+    source_name == &quot;ESPN&quot;                 ~ &quot;ESPN&quot;,
+    TRUE                                  ~ &quot;Other&quot;)) %&gt;%
+mutate(image_status = if_else(is.na(url_to_image), 0, 1)) %&gt;%
+left_join(articles_gamma_sliced)  %&gt;%
+ mutate(topic_category = case_when(
+    topic_category == &quot;US coverage&quot;   ~ &quot;US coverage&quot;,
+    TRUE                               ~ &quot;Other coverage&quot;))
+
+final_model_lm &lt;- lm(formula = popularity ~ + factor(topic_category) + source_name + image_status, data = final_model_set)
+        
+summary(final_model_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = popularity ~ +factor(topic_category) + source_name + 
+##     image_status, data = final_model_set)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -2167   -593   -577     -8 432688 
+## 
+## Coefficients:
+##                                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                          895.9      303.7   2.951  0.00318 ** 
+## factor(topic_category)US coverage    688.8      158.0   4.361 1.31e-05 ***
+## source_nameESPN                    -1553.9      690.0  -2.252  0.02435 *  
+## source_nameOther                    -884.8      193.0  -4.584 4.62e-06 ***
+## source_nameThe Irish Times         -1498.3      256.1  -5.850 5.06e-09 ***
+## image_status                         582.4      245.5   2.373  0.01768 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6029 on 10313 degrees of freedom
+##   (117 observations deleted due to missingness)
+## Multiple R-squared:  0.006721,   Adjusted R-squared:  0.00624 
+## F-statistic: 13.96 on 5 and 10313 DF,  p-value: 1.265e-13</code></pre>
+<p>Finally, we can formulate our statistically significant formula as follows:</p>
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+<p><strong>Popularity = 895.9 + 688.8 US_Coverage - 884.8 Other_than_CNN_Source - 1498.3 The_Irish_Times_Source - 1553.9 ESPN_Source + 582.4 With_Image</strong></p>
+</section>
+<p><br></p>
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+<p><strong>Interesting indeed, with all results now significant!</strong> We can now fairly conclude that US topics, on average are more popular than any other topic category. Thanks to our unsupervised classification and the amazing tidytext and stm packages.</p>
+<p>CNN is also largely superior in terms of popularity, and is on average above its peers by c. 885 reactions/comments/shares.</p>
+<p>ESPN and the Irish Times aren’t so popular on facebook. Probably users rely mostly on other platforms such as Twitter or Instagram, which makes a lot sense for ESPN users given the most likely younger generation of followers</p>
+<p><em>What’s good to know is that having an image boosts popularity by 582, so definitely worth adding an image before you publish your article!</em></p>
+</section>
+<p><br></p>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

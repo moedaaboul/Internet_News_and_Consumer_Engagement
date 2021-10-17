@@ -1,0 +1,691 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+<a href="datacamp.com/workspacecompetition" target="_blank">![banner](banner.png)</a>
+
+
+Ready to put your coding skills to the test? Join us for our Workspace Competition.  
+For more information, visit [datacamp.com/workspacecompetition](https://datacamp.com/workspacecompetition) 
+
+### Context
+This dataset ([source](https://www.kaggle.com/szymonjanowski/internet-articles-data-with-users-engagement)) consists of data about news articles collected from Sept. 3, 2019 until Nov. 4, 2019. Afterwards, it is enriched by Facebook engagement data, such as number of shares, comments and reactions. It was first created to predict the popularity of an article before it was published. However, there is a lot more you can analyze; take a look at some suggestions at the end of this template.
+
+
+### Load packages
+
+```{r setup, message=FALSE}
+
+library(skimr)
+library(tidyverse)
+```
+
+### Load your Data
+
+```{r, message=FALSE}
+articles <- readr::read_csv('data/news_articles.csv.gz')
+articles$source_id <- as.factor(articles$source_id)
+articles$source_name <- as.factor(articles$source_name)
+skim(articles) %>% 
+  select(-(numeric.p0:numeric.p100)) %>%
+  select(-(complete_rate))
+```
+
+### Understand your data
+
+| Variable.                        | Description	                                                                  |
+|:---------------------------------|:-------------------------------------------------------------------------------|
+|	source_id                        | publisher unique identifier                                                    |
+|	source_name                      | human-readable publisher name                                                  |
+|	author                           | article author                                                                 |
+|	title                            | article headline                                                               |
+|	description                      | article short description                                                      |
+|	url	                             | article URL from publisher website                                             |
+|	url_to_image                     | URL to main image associated with the article                                  |
+|	published_at                     | exact time and date of publishing the article                                  |
+|	content	                         | unformatted content of the article truncated to 260 characters                 |
+|	top_article                      | value indicating if article was listed as a top article on publisher website   |
+|	engagement_reaction_count        | users reactions count for posts on Facebook involving article URL              |
+|	engagement_comment_count         | users comments count for posts on Facebook involving article URL               |
+|	engagement_share_count           | users shares count for posts on Facebook involving article URL                 |
+|	engagement_comment_plugin_count  | Users comments count for Facebook comment plugin on article website            |
+
+
+
+Now you can start to explore this dataset with the chance to win incredible prices! Can't think of where to start? Try your hand at these suggestions:
+
+- Extract useful insights and visualize them in the most interesting way possible.
+- Categorize the articles into different categories based on, for example, sentiment.
+- Cluster the news articles, authors or publishers based on, for example, topic.
+- Make a title generator based on data such as content, description, etc.
+
+### Judging Criteria
+| CATEGORY | WEIGHTAGE | DETAILS                                                              |
+|:---------|:----------|:---------------------------------------------------------------------|
+| **Analysis** | 30%       | <ul><li>Documentation on the goal and what was included in the analysis</li><li>How the question was approached</li><li>Visualisation tools and techniques utilized</li></ul>       |
+| **Results**  | 30%       | <ul><li>How the results derived related to the problem chosen</li><li>The ability to trigger potential further analysis</li></ul> |
+| **Creativity** | 40% | <ul><li>How "out of the box" the analysis conducted is</li><li>Whether the publication is properly motivated and adds value</li></ul> |
+
+
+---
+title: Internet News and Consumer Engagement
+author: "Muhammad Daaboul"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+
+---
+
+## Understanding our dataset
+
+We observe that the `articles` dataset has 10,436 articles that have been published by 12 of the biggest names in the news industry. Our objective is to gain a deeper understanding of the relationship between these different news providers with particular emphasis on Reuters. We intend to cover the following four main areas in our analysis: 
+
+- Topic correlation
+- Sentiment analysis
+- Topic modeling for cluster analysis  
+- Understand the main triggers behind popularity
+
+We present below an extract from the first row of this dataset to help build the readers intuition of the main elements that will be effective in our analysis. 
+
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+
+###### **Source**: `r articles[1,c("source_name")]`
+
+###### **Author**: `r articles[1,c("author")]`
+
+###### **Published at**: `r articles[1,c("published_at")]`
+
+###### **URL TO IMAGE**:
+<a href="https://s4.reutersmedia.net/resources/r/?m=02&d=20190903&t=2&i=1425817142&w=1200&r=LYNXNPEF821HS" target="_blank">![car](car.png)</a>
+
+###### **Title**: `r articles[1,c("title")]`
+
+###### **Description**: `r articles[1,c("description")]`
+
+###### **Content**: `r articles[1,c("content")]`
+
+###### **Reaction**: `r articles[1,c("engagement_reaction_count")]` times
+<br>
+![facebook-reactions](facebook-reactions.png) <br>
+
+###### **Comments**: `r articles[1,c("engagement_comment_count")]` times
+
+###### **Shares**: `r articles[1,c("engagement_share_count")]` times
+
+</section><br>
+
+This article however was not recorded to have had any reactions or comments, but was shared `r articles[1,c("engagement_share_count")]` times ! Other information that would also be included but not found for article under id no. 1 would be: 
+
+- engagement_reaction_count
+- engagement_comment_count
+- engagement_comment_plugin_count
+
+Now that we have a feel of how the contents we can also view these using the `str()` function as shown below to view the first article's content: 
+
+```{r}
+str(articles[1,])
+```
+
+
+We will also use the `source_name` column going forward rather than the `source_id` column. We have verified below that there are no differences between these two columns, but have chosen the former simply because it looks a lot neater and is more suitable for use for our graphical representations going forward.
+
+```{r}
+articles %>%
+  count(source_id, source_name)
+
+```
+
+We start by summarizing key the main article engagement metrics gathered. It would be misleading to compare the total number of reactions, comments, or shares irrespective of the number of articles related to each news provider. We will therefore present the `mean` which will allow us to form a reasonable comparison between users different behaviours towards the different news source providers.
+
+```{r, fig.width=8, message=FALSE, warning=FALSE, fig.cap="Figure 1 - Average number of reaction types per article", fig.align='center'}
+
+articles %>%
+ filter(!source_name == "460.0") %>%
+ group_by(source_name) %>%
+ summarise(reaction = mean(engagement_reaction_count),
+            comment = mean(engagement_comment_count),
+              share = mean(engagement_share_count)) %>%
+ gather(key = "comment_type", value = "count", -source_name, na.rm = TRUE) %>%
+ ggplot(aes(fct_reorder(source_name, count), count, fill=comment_type)) + 
+ geom_col(position = "dodge") + 
+ coord_flip() +
+ ylab("") + 
+ xlab("") + 
+ guides(fill=guide_legend(title="Reaction Types"))
+
+```
+
+
+Some really interesting observations to take here. Reuters users are much more likely to share an article, but otherwise there is a defined pattern where a `reaction` is the common engagement type, followed by `comments` and then `shares`. Additionally, CNN appears to be the most popular amongst the others.
+
+##### **Data Wrangling**
+
+We will start by doing some data cleansing and will remove the "460.0" as the results inferred here would be statistically invalid due to having only one occurrence.
+
+```{r, message=FALSE}
+library(janitor)
+
+articles <- articles %>%
+            clean_names() %>%
+            rename(id = x1) %>%
+            mutate(id = row_number()) %>%
+            filter(source_name != "460.0")
+
+
+```
+
+Now we'll create a unique article id by newspaper agency. 
+
+```{r}
+
+clean_articles <- articles %>%
+                 group_by(source_name) %>%
+                 mutate(reference = row_number()) %>%
+                 ungroup() %>%
+                 mutate(article_id = paste0(source_name, "_", reference)) %>%
+                 select(-reference)
+
+str(clean_articles[1,])
+```
+
+##### **Tokenization**
+
+Many of the principles used below have been utilized by the amazing `tidytext` package which has been authored by both `Silge and Robinson`. We will now arrange the dataset into a one-token-per-row format using the `unnest_tokens()` verb.
+
+```{r, message = FALSE}
+
+library(tidytext)
+
+tidy_articles <- clean_articles %>%
+                 unnest_tokens(word, description) 
+
+```
+We will then anti-join stop words, which are common language fillers such as `the` and `a` (Silge and Robinson) so our text analysis is based on meaningful words.
+
+```{r, message=FALSE}
+
+data(stop_words)
+
+tidy_articles <- tidy_articles %>%
+                  anti_join(stop_words)
+
+tidy_articles %>%
+  count(word, sort = TRUE)
+```
+
+##### **Text correlation analysis**
+
+Now we create `prop`, which summarizes the proportion each word has has been mentioned by each respective News provider.
+
+
+```{r}
+
+prop <- tidy_articles %>%
+        count(word, source_name, sort = TRUE) %>%
+        group_by(source_name) %>%
+        mutate(proportion = n / sum(n)) %>%
+        ungroup() %>%
+        select(-n)
+
+
+```
+
+We then filter our newly created dataset for `Reuters` and use that to depict a visual representation of the words that more likely to mentioned to be mentioned by `Reuters` (i.e. have a higher proportion) vs. words that are less likely to be mentioned (i.e. having a lower proportion). A lower proportion will indicate that there is a higher possibility of occurrence by the other News providers.
+
+```{r}
+
+prop_reuters <- prop %>%
+                filter(source_name == "Reuters") %>%
+                select(word, proportion) %>%
+                rename(Reuters = proportion)
+
+```
+
+Before we visualise our results, we'll need to `left_join()` the original proportions to allow for a comparison as the `prop_reuters` dataset doesn't include these. 
+
+```{r}
+
+tidy_prop <- prop %>%
+  left_join(prop_reuters, by = c("word"))
+```
+
+Now we are able to visualise our results...   
+
+```{r, fig.height=8, fig.width= 8, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 2 - Comparing word freqencies of Reuters against other News services"}
+
+library(scales)
+
+ggplot(tidy_prop, aes(x = proportion, y = `Reuters`, 
+                      color = abs(`Reuters` - proportion))) +
+  geom_abline(color = "gray40", lty = 2) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  scale_color_gradient(limits = c(0, 0.001), 
+                       low = "darkslategray4", high = "gray75") +
+  facet_wrap(~source_name, ncol = 3) +
+  theme(legend.position="none") +
+  labs(y = "Reuters proportions", x = NULL)
+
+```
+
+*Interesting!*  We can tell straight from the graphs that ESPN has the lowest correlation against Reuters. This was  expected, since `ESPN`'s coverage is focused on sports-related content unlike the other source providers which cover broader topic areas.
+
+We will now quantify this correlation against `ESPN` to substantiate our results and translate these into numbers using `Pearson's correlation` by calculating statistic through `cor.test`. 
+
+```{r}
+
+cor.test(data = tidy_prop[tidy_prop$source_name == "ESPN",], ~ proportion + `Reuters`)
+
+```
+
+Now, we'll write a function to pull `Reuters` correlations against all other sources and test again for `ESPN`.
+
+```{r}
+
+correlation_function <- function(x) {
+cor.test(data = tidy_prop[tidy_prop$source_name == x,], ~ proportion + `Reuters`)
+}
+
+source_list <- as.vector(unique(tidy_prop$source_name))
+
+correlation_list <- map(source_list, correlation_function) %>%
+                    setNames(source_list)
+
+correlation_list$ESPN
+
+```
+
+*Awesome!*  We derived the exact same correlation but using a function. We can now plot `Reuters` correlations against the other News source providers.
+
+
+```{r, fig.width= 7, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 3 - Reuters text correlation with other News sources"}
+
+library(reshape2)
+library(forcats)
+
+correlation_df <- melt(lapply(correlation_list, `[`, c('estimate', 'p.value')))
+
+tidy_correlations <- correlation_df %>%
+                     filter(L2 == "estimate", L1 != "Reuters") %>%
+                     rename(source_name = L1) %>%
+                     select(-L2) %>%
+                     ggplot(aes(fct_reorder(source_name, value),value)) +
+                     geom_col() + 
+                     coord_flip() + 
+                     xlab(NULL) +
+                     ylab("")
+
+tidy_correlations
+```
+
+
+Interesting to see `ABC` news with even lower correlation than `ESPN`'s. A closer look at the plot above shows the words *world*, *news*, *video*, *coverage* as clear outliers causing ABC News to have this awfully low correlation even though `ESPN`'s content is much more diverse.  
+
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+
+**Note**: Our analysis results would have been much different had we used the `content` column in the description dataset. However, because results have been truncated to 260 characters we believe it would be very difficult to infer meaningful relationships through missing content, and therefore have based our analysis on the  `description` column which provides an excellent summary of the article events, and is a lot more detailed than the `title` column.
+
+</section><br>
+
+
+### **Topic modeling**
+
+Now we move on to `topic modeling`, where our goal is to show you the various topic clusters within the `articles` dataset by article. We start by arranging our dataset into a tidy format.
+
+```{r}
+
+wordsbyArticle <- tidy_articles %>%
+                   count(article_id, word, sort = TRUE) 
+
+wordsbyArticle
+```
+
+
+We will now transform this into a dfm object using the `cast_dfm()` function from using the `tidytext`package (Silge and Robinson). A dfm-class object is a sparse matrix representation of the counts of features by document, and is needed to apply the `stm` function, which is a method of unsupervised classification widely accepted as suitable topic modeling method. 
+
+Due to the excruciating amount of time needed to knit the document with the `stm`, we have opted to save the file into our workspace to make the knitting process much smoother and quicker ! We have also saved the seed number for reproducibility.
+
+```{r, eval = FALSE}
+
+library(tm)
+library(quanteda)
+library(stm)
+
+articles_dfm <- wordsbyArticle %>%
+  cast_dfm(article_id, word, n)
+
+set.seed(2021)
+articles_lda <- stm(articles_dfm, K=6, init.type = "LDA")
+saveRDS(articles_lda, file = "articles_lda.RDS")
+rownames_dfm <- rownames(articles_dfm)
+saveRDS(rownames_dfm, file = "rownames_dfm.RDS")
+```
+
+
+```{r}
+articles_lda <- readRDS(file = "articles_lda.RDS")
+rownames_dfm  <- readRDS(file = "rownames_dfm.RDS")
+
+```
+
+Now, that we've successfully run the topic models, we will group these into different categories. To avoid repeating the graph twice, we will label these prior to visualising the top 10 words from each of the 6 topics. 
+
+```{r, fig.height=7, fig.width= 9, fig.align='center',  message=FALSE, warning=FALSE,  fig.cap="Figure 4 - Terms that are most common within each of the six topics"}
+
+article_topics <- tidy(articles_lda, matrix = "beta")
+
+topic_theme <- article_topics %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+topic_categories <- tibble(topic = 1:6, topic_category = c("Exclusive content", "Economy and Trade", "Climate change", "US coverage", "International coverage", "UK coverage"))
+
+topic_theme %>%
+  inner_join(topic_categories, by = c("topic")) %>%
+  ggplot(aes(fct_reorder(term, beta), beta, fill = factor(topic_category))) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~topic_category, scales = "free") + 
+  coord_flip() +
+  ylab("") +
+  xlab("")
+
+```
+Even though there is some judgement involved surrounding the nomenclature of these topic categories, we can clearly distinguish certain topic areas such as *Economy and Trade*, *Climate change*, *US coverage*, and *UK coverage*. Other areas such as *International coverage* are more likely disputed but most probably accepted to fit a range of other topics. This opens the possibility to perform topic modelling using a k > 6. Also, *Exclusive* sounds a bit vague and not well defined but we believe it is driven by the `description` column in the dataset being limited to certain characters. However, for our purposes we will keep this to examine later on whether exclusive content has a significant impact on popularity. 
+
+
+Now we'll turn our focus to `gamma`, which moves away slightly from a word focus and is an allocation of various topics within a single document (Silge and Robinson). So in our case, this would be the topics allocation which each article from our articles dataset (i.e. allocation by `article_id`)
+
+```{r, fig.width= 7, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 5 - Weighting of our clustered topic categories amongst the various News providers"}
+
+articles_gamma <- tidy(articles_lda, matrix = "gamma", document_names = rownames_dfm)
+
+articles_gamma_sliced <- articles_gamma %>%
+  group_by(document) %>%
+  slice_max(order_by = gamma, n=1) %>%
+  ungroup() %>%
+  arrange(-gamma) %>%
+  inner_join(topic_categories) %>%
+  rename(article_id = document)
+  
+articles_gamma_sliced %>%  
+separate(article_id, c('source_name', 'article_number'), sep="_") %>%
+count(source_name, topic, topic_category) %>%
+ggplot(aes(source_name, n, fill = factor(topic_category))) + 
+geom_col(position = "fill") + 
+coord_flip() + 
+guides(fill=guide_legend(title="Topic categories")) +
+ylab("") +
+xlab("")
+
+```
+The results above are sensical. `ESPN`'s UK coverage is a result from the its UK premiere league coverage. `BBC` obviously has higher UK coverage than its counterparts. `WSJ` and the `Business Insider` are mostly focused on Economy and Trade as would be expected. `CNN` understandably has a much higher US coverage than any of its counterparts. 
+
+
+### Sentiment Analysis
+
+Now we'll perform sentiment analysis using the `bing` dataset (Silge and Robinson). This lexicon provides a two-category sentiment which will be useful for our analysis. Using the `tidytext` package, we can obtain this lexicon by calling `get_sentiments()`
+
+```{r, echo=FALSE, message=FALSE}
+
+library(textdata)
+
+get_sentiments("bing")
+
+
+```
+
+Here, we'll `inner_join` the `bing` dataset to our tidied set, thereby eliminating any mismatch in words between these two datsets. We will also assign a `sentiment` score based on the frequency of either positive or negative words within each `article_id`
+
+```{r, message=FALSE, warning=FALSE}
+
+sentiment_bing <- tidy_articles %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(article_id, source_name, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+sentiment_bing
+
+```
+
+
+###  Wordcloud
+
+Now that we have a tidied dataset, we can plot a wordcloud with the `reshape2` and `wordcloud` packages. We can try to understand the main sentiment drivers (either positive or negative) within the whole dateset.
+
+```{r, fig.height=8, fig.width= 8, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 6 - Most common positive and negative words in all articles"}
+
+library(reshape2)
+library(wordcloud)
+
+tidy_articles %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20","gray80"), max.words = 75)
+
+```
+
+Some of these negative words are distressing, so we can filter our dataset to `ESPN` to find more lighthearted indicators of either negative or positive sentiment.  
+  
+
+```{r, fig.height=8, fig.width= 8, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 7 - Most common positive and negative words in ESPN articles"}
+
+tidy_articles %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, source_name, sort = TRUE) %>%
+  filter(source_name == "ESPN") %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20","gray80"), max.words = 120)
+
+```
+
+This is more like it, and why people love watching sports! 
+
+### Term Frequency
+
+We can also obtain a deeper understanding of the topic areas covered by each News agency by calculating term frequency, which is the number of times our words apprear within a document. We will use this concept to depict the top 15 words most commonly used by each News provider. This can be performed using the `bind_tf_idf` verb.
+
+```{r, fig.cap="Figure 8 - Highest tf-idf words amongst the dataset's news sources", fig.height=10, fig.width= 10, fig.align='center',  message=FALSE, warning=FALSE}
+
+article_words <-   tidy_articles %>%
+                   count(source_name, word, sort = TRUE)
+
+
+article_words <- article_words %>%
+                 bind_tf_idf(word, source_name, n) %>%
+                 arrange(-tf_idf)
+                 
+article_words %>%
+  group_by(source_name) %>%
+  slice_max(tf_idf, n = 15) %>%
+  ungroup %>%
+  ggplot(aes(word, tf_idf, fill = source_name)) +
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~source_name, ncol = 3, scales = "free") + 
+  labs(x = NULL, y = "") + 
+  coord_flip()
+
+```
+
+Interesting to see 48 which is the 48 Hours show on CBS, the source name and their websites is also obvious and expected. There is more football coverage under BBC news by the words *trafford* and *tottenham*, but probably needed a higher k to arrive at a sports cluster. However, the main limitation behind this could possibly be the diverse topics covered by ESPN such as NFL and basketball vs. mainly Olympics and football coverage by BBC. 
+
+
+### N-grams and correlation
+
+Our focus so far has been on *unigrams*, however we could certainly derive a lot more from *bigrams*. Bigrams allow us to visualise the connectivity between these words using the `igraph` package. 
+  
+
+```{r}
+
+article_bigrams <- clean_articles %>%
+                    unnest_tokens(bigrams, description, token = "ngrams", n = 2)
+
+```
+
+Now we have unnested the `description` columns by bigrams, we can count the frequency of unique combinations.
+
+```{r}
+
+data(stop_words)
+
+article_bigrams <- article_bigrams %>%
+                    count(bigrams, sort = TRUE)
+
+```
+
+We will now filter out any stopword occurrences after splitting the `bigrams` into two columns for each of the two words.
+
+```{r}
+bigrams_split <-article_bigrams %>%
+  separate(bigrams, c("word1","word2"), sep= " ") %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word) %>%
+  arrange(desc(n))
+```
+
+Using the `igraph` package we can now visualise connectivity between words that have occurred more than 15 times. We will also increase the thickness of the links depending on the frequency of these bigrams by assigning `edge_with = n` within `geom_edge_link()`. *Really cool stuff!* 
+
+```{r, fig.height=10, fig.width= 12, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 9 - Most recurring bigrams in all articles that have occurred at least 15 times"}
+library(ggraph)
+library(igraph)
+library(grid)
+
+bigram_igraph <- bigrams_split %>%
+ filter(n > 15) %>%
+ filter(!is.na(word1)) %>%
+ filter(!is.na(word2)) %>%
+ graph_from_data_frame() 
+
+set.seed(1234)
+
+ggraph(bigram_igraph, layout = "fr") + 
+geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = "cyan4", end_cap = circle(0.07, 'inches')) +
+geom_node_point(color = "lightblue", size = 5) + 
+geom_node_text(aes(label = name), vjust = 1, hjust = 1) + 
+theme_void()
+
+```
+
+We can clearly tell a story now. For example, one particular theme surrounding US coverage was on former President Donald Trump and his administration whilst Vice President *(now President)* Joe Biden was the runner-up.  
+
+### Putting the final pieces together
+
+We will now combine various pieces from our final products above to form a meaningful relationship through a linear regression model. Our aim to explain *popularity* depending on the **source name**, **sentiment**, **topic category** and **image status**, which we plan to add further below. 
+
+#### Popularity by source name
+
+We finally attempt to visualise popularity by the various sources.
+
+```{r, fig.width= 8, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 10 - Average popularity amongst the different news service providers"}
+
+clean_articles %>%
+mutate(popularity = engagement_reaction_count + engagement_comment_count + engagement_share_count + engagement_comment_plugin_count) %>%
+group_by(source_name) %>%
+summarise(popularity = mean(popularity, na.rm =TRUE)) %>%
+ggplot(aes(fct_reorder(source_name, popularity), popularity, fill = source_name)) +
+geom_col(show.legend = FALSE) +
+coord_flip() +
+ylab("") +
+xlab("")
+
+```
+
+This clearly shows that the New York Times and CNN are clear high flyers in terms of popularity, with both the Irish Times and ESPN way below average. This will help us regroup the middle categories as one as they all fall within range in terms of popularity (i.e. *CBS News*, *Al Jazeera English*, *Newsweek*, *Business Insider*, *BBC News*, *ABC News*, *The Wall Street Journal*, and *Reuters*) 
+
+##### Sentiment
+
+We will also have a look at sentiment across the board
+
+```{r, fig.height=7, fig.width= 7, fig.align='center',  message=FALSE, warning=FALSE, fig.cap="Figure 11 - Sentiment score distribution by News provider"}
+
+library(lubridate)
+
+clean_articles %>%
+left_join(
+           select(sentiment_bing, c("article_id", "sentiment")
+                                                              )) %>%
+ggplot(aes(sentiment, fill = source_name)) +
+geom_density(show.legend = FALSE) + 
+facet_wrap(~source_name) +
+xlab("")
+
+```
+Overall sentiment looks balanced. We will take an easy shortcut by assuming sentiment is fairly similar for now. Now, it's time for data wrangling before we apply our lm model.
+
+```{r, warning = FALSE, message = FALSE}
+
+model_set <- clean_articles %>%
+mutate(popularity = engagement_reaction_count + engagement_comment_count + engagement_share_count + engagement_comment_plugin_count) %>%
+left_join(
+           select(sentiment_bing, c("article_id", "sentiment")
+                                                              )) %>%
+mutate(source_name = case_when(
+    source_name == "CNN"                  ~ "CNN",
+    source_name == "The Irish Times"      ~ "The Irish Times",
+    source_name == "The New York Times"   ~ "The New York Times",
+    source_name == "ESPN"                 ~ "ESPN",
+    TRUE                                  ~ "Other")) %>%
+  mutate(sentiment_cat = case_when(
+    sentiment > 0                  ~ "positive",
+    sentiment < 0                  ~ "negative",
+    TRUE                           ~ "neutral")) %>%
+mutate(image_status = if_else(is.na(url_to_image), 0, 1)) %>%
+left_join(articles_gamma_sliced)
+
+model_lm <- lm(formula = popularity ~ sentiment_cat + topic_category + source_name + image_status, data = model_set)
+        
+summary(model_lm)
+
+
+```
+The New York Times didn't turn to very significant, so we will regroup with other. We will also categorise content as being either US coverage or other
+
+```{r, warning = FALSE, message = FALSE}
+
+final_model_set <- clean_articles %>%
+mutate(popularity = engagement_reaction_count + engagement_comment_count + engagement_share_count + engagement_comment_plugin_count) %>%
+left_join(
+           select(sentiment_bing, c("article_id", "sentiment")
+                                                              )) %>%
+mutate(source_name = case_when(
+    source_name == "CNN"                  ~ "CNN",
+    source_name == "The Irish Times"      ~ "The Irish Times",
+    source_name == "ESPN"                 ~ "ESPN",
+    TRUE                                  ~ "Other")) %>%
+mutate(image_status = if_else(is.na(url_to_image), 0, 1)) %>%
+left_join(articles_gamma_sliced)  %>%
+ mutate(topic_category = case_when(
+    topic_category == "US coverage"   ~ "US coverage",
+    TRUE                               ~ "Other coverage"))
+
+final_model_lm <- lm(formula = popularity ~ + factor(topic_category) + source_name + image_status, data = final_model_set)
+        
+summary(final_model_lm)
+
+
+```
+
+Finally, we can formulate our statistically significant formula as follows: 
+
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+
+**Popularity = 895.9 + 688.8 US_Coverage - 884.8 Other_than_CNN_Source - 1498.3 The_Irish_Times_Source - 1553.9 ESPN_Source + 582.4 With_Image**
+
+</section><br>
+
+<section style="border: 2px solid grey; padding: 10px;background-color: #dddddd">
+
+**Interesting indeed, with all results now significant!** We can now fairly conclude that US topics, on average are more popular than any other topic category. Thanks to our unsupervised classification and the amazing tidytext and stm packages.
+
+CNN is also largely superior in terms of popularity, and is on average above its peers by c. 885 reactions/comments/shares. 
+
+ESPN and the Irish Times aren't so popular on facebook. Probably users rely mostly on other platforms such as Twitter or Instagram, which makes a lot sense for ESPN users given the most likely younger generation of followers
+
+*What's good to know is that having an image boosts popularity by 582, so definitely worth adding an image before you publish your article!* 
+
+</section><br>
